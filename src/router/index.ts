@@ -37,27 +37,27 @@ const router = createRouter({
     },
     {
       path: '/Managerhome',
-      name: 'home',
+      name: 'Managerhome',
       component: ()=>import('../views/ManagerHome.vue'),
       children:[
         {
           path: '/ManagerUserManagement',
-          name: 'UserManagement',
+          name: 'ManagerUserManagement',
           component: ()=>import('../views/ManagerUserManagement.vue'),
         },
         {
           path: '/ManagerIndustryDynamicsManagement',
-          name: 'IndustryDynamicsManagement',
+          name: 'ManagerIndustryDynamicsManagement',
           component: ()=>import('../views/ManagerIndustryDynamicsManagement.vue'),
         },
         {
           path: '/ManagerCourseManagement',
-          name: 'CourseManagement',
+          name: 'ManagerCourseManagement',
           component: ()=>import('../views/ManagerCourseManagement.vue'),
         },
         {
           path: '/ManagerMeetingManagement',
-          name: 'MeetingManagement',
+          name: 'ManagerMeetingManagement',
           component: ()=>import('../views/ManagerMeetingManagement.vue'),
         },
       ]
