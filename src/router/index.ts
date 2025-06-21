@@ -36,6 +36,33 @@ const router = createRouter({
       ]
     },
     {
+      path: '/Managerhome',
+      name: 'home',
+      component: ()=>import('../views/ManagerHome.vue'),
+      children:[
+        {
+          path: '/ManagerUserManagement',
+          name: 'UserManagement',
+          component: ()=>import('../views/ManagerUserManagement.vue'),
+        },
+        {
+          path: '/ManagerIndustryDynamicsManagement',
+          name: 'IndustryDynamicsManagement',
+          component: ()=>import('../views/ManagerIndustryDynamicsManagement.vue'),
+        },
+        {
+          path: '/ManagerCourseManagement',
+          name: 'CourseManagement',
+          component: ()=>import('../views/ManagerCourseManagement.vue'),
+        },
+        {
+          path: '/ManagerMeetingManagement',
+          name: 'MeetingManagement',
+          component: ()=>import('../views/ManagerMeetingManagement.vue'),
+        },
+      ]
+    },
+    {
       path: '/about',
       name: 'about',
       // route level code-splitting
