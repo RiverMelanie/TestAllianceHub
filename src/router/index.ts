@@ -37,7 +37,7 @@ const router = createRouter({
     },
     {
       path: '/Managerhome',
-      name: 'home',
+      name: 'Managerhome',
       component: ()=>import('../views/ManagerHome.vue'),
       children:[
         {
