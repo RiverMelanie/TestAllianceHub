@@ -159,6 +159,7 @@ import axios from 'axios';
 import { useRouter } from 'vue-router';
 import { ElMessage, type FormInstance, type FormRules } from 'element-plus';
 import { ref, onMounted } from 'vue';
+import { useUserStore } from '@/stores/user.ts';
 
 	let router=useRouter()
 	let store = useUserStore()
