@@ -24,7 +24,9 @@ import axios from 'axios';
 import { ElMessage } from 'element-plus';
 import { ref } from 'vue';
 import { useRouter } from 'vue-router';
+import { useUserStore } from '@/stores/user';
 	let router=useRouter()
+	let store = useUserStore()
 	let uname=ref("")
 	let upwd=ref("")
 	function login(){
