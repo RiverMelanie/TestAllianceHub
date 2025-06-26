@@ -220,6 +220,8 @@ import { useUserStore } from '@/stores/user.ts';
 				ElMessage.error(res.data.message ||"登录失败")
 			}
 		})
+
+		store.userName = uname.value
 	}
 
 	// 注册表单数据
