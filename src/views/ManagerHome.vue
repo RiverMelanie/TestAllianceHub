@@ -1,7 +1,7 @@
 <template>
 	<div class="common-layout">
 	    <el-container>
-	      <el-header>测盟汇</el-header>
+	      <el-header>测盟汇-超级管理员端</el-header>
 	      <el-container>
 	        <el-aside width="200px">
 			  <el-menu
