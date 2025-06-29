@@ -209,6 +209,12 @@ import { useUserStore } from '@/stores/user.ts';
 		.then(res=>{
 			if(res.data.success){
 				ElMessage.success("登录成功")
+				
+				// 存储用户信息到localStorage
+				localStorage.setItem('userInfo', JSON.stringify({
+				userId: res.data.userInfo.user_id,
+				nickname: res.data.userInfo.nickname
+				}))
 
 				if(loginType.value === 'user') {
 					router.push("/home") // 用户主页
