@@ -1,5 +1,5 @@
 <template>
-    <el-row :gutter="20">
+    <el-row :gutter="20" style="margin-bottom: 20px;">
         <el-col :span="5">
             <el-input v-model="creatorNameText" style="width: 150px" placeholder="创建人" clearable />
         </el-col>
@@ -9,10 +9,8 @@
         <el-col :span="6">
             <el-date-picker
                 v-model="meetingDateText"
-                type="date"
+                type="datetime"
                 placeholder="选择会议日期"
-                :disabled-date="disabledDate"
-                :shortcuts="shortcuts"
                 clearable
             />
         </el-col>
@@ -23,32 +21,29 @@
             <el-button type="primary" plain @click="meetingCreation = true">创建</el-button>
             <el-drawer v-model="meetingCreation" title="创建会议" size="50%">
                 <div>
-                    会议封面：<el-input
-                                v-model="cover_url"
-                                style="width: 240px"
-                                placeholder="请输入封面地址"
-                                clearable
-                                /><br/>
+                    会议封面：<el-upload
+                                class="avatar-uploader"
+                                action="#"
+                                :show-file-list="false"
+                                :auto-upload="false"
+                                :on-change="handleCoverChange"
+                            >
+                                <img v-if="cover_url" :src="cover_url" class="avatar" />
+                                <el-icon v-else class="avatar-uploader-icon"><Plus /></el-icon>
+                            </el-upload>
+                            <el-button v-if="cover_url" type="text" @click="cover_url = ''">更换图片</el-button>
+                            <br/>
                     会议名称：<el-input
                                 v-model="meeting_name"
                                 style="width: 240px"
                                 placeholder="请输入会议名称"
                                 clearable
                                 /><br/>
-                    会议日期：<el-date-picker
-                                v-model="meeting_date"
-                                style="width: 240px"
-                                type="date"
-                                placeholder="请选择会议日期"
-                                :disabled-date="disabledDate"
-                                :shortcuts="shortcuts"
-                                clearable
-                            /><br/>
                     开始时间：<el-date-picker
                                 v-model="start_time"
                                 style="width: 240px"
                                 type="datetime"
-                                placeholder="请选择具体开始时间"
+                                placeholder="请选择开始时间"
                             /><br/>
                     结束时间：<el-date-picker
                                 v-model="end_time"
@@ -70,17 +65,24 @@
                                 style="width: 240px"
                                 type="datetime"
                                 placeholder="请选择创建时间"
-                            /><br/> 
+                                :disabled-date="disabledDate"
+                                :shortcuts="shortcuts"
+                                clearable
+                            /><br/>
                     创 建 人：<el-input
                                 v-model="creator_name"
                                 style="width: 240px"
                                 placeholder="请输入创建人名字"
                                 /><br/> 
-                    会议状态：<el-input
-                                v-model="audit_status"
-                                style="width: 240px"
-                                disabled
-                                /><br/>
+                    会议状态：<el-select 
+                                v-model="audit_status" 
+                                style="width: 240px" 
+                                placeholder="请选择会议状态"
+                            >
+                            <el-option label="未审核" value="未审核"></el-option>
+                            <el-option label="已通过" value="已通过"></el-option>
+                            <el-option label="未通过" value="未通过"></el-option>
+                            </el-select><br/>
                     <el-button @click="updateContent = true">会议介绍详情</el-button>
                     <el-drawer v-model="updateContent" title="介绍详情" :append-to-body="true" :before-close="handleClose" >
                         <p>{{content}}</p>
@@ -95,25 +97,23 @@
      
 
 
-    <el-dialog v-model="updateDialogVisible" title="修改会议信息" width="400">
-        会议封面：<el-input
-                    v-model="ncover_url"
-                    style="width: 240px"
-                    clearable
-                    /><br/>
+    <el-dialog v-model="updateDialogVisible" title="修改会议信息" width="600">
+        会议封面：<el-upload
+                    class="avatar-uploader"
+                    action="#"
+                    :show-file-list="false"
+                    :auto-upload="false"
+                    :on-change="handleUpdateCoverChange"
+                >
+                    <img v-if="ncover_url" :src="ncover_url" class="avatar" />
+                    <el-icon v-else class="avatar-uploader-icon"><Plus /></el-icon>
+                </el-upload>
+                <el-button v-if="ncover_url" type="text" @click="ncover_url = ''">更换图片</el-button><br/>
         会议名称：<el-input
                     v-model="nmeeting_name"
                     style="width: 240px"
                     clearable
                     /><br/>
-        会议日期：<el-date-picker
-                    v-model="nmeeting_date"
-                    style="width: 240px"
-                    type="date"
-                    :disabled-date="disabledDate"
-                    :shortcuts="shortcuts"
-                    clearable
-                /><br/>
         开始时间：<el-date-picker
                     v-model="nstart_time"
                     style="width: 240px"
@@ -132,31 +132,97 @@
                     :maxlength="1000" 
                     show-word-limit  
                 /><br/> 
-        创建时间：<el-date-picker
+        创建时间： <el-date-picker
                     v-model="ncreate_time"
                     style="width: 240px"
                     type="datetime"
-                    placeholder="请选择创建时间"
-                /><br/> 
+                    :disabled-date="disabledDate"
+                    :shortcuts="shortcuts"
+                    clearable
+                /><br/>
         创 建 人：<el-input
                     v-model="ncreator_name"
                     style="width: 240px"
                     placeholder="Please input"
                     /><br/> 
-        状    态：<el-input
-                    v-model="naudit_status"
-                    style="width: 240px"
-                    placeholder="Please input"
+        状    态：<el-select 
+                    v-model="naudit_status" 
+                    style="width: 240px" 
+                    placeholder="请选择会议状态"
                     disabled
-                    /><br/>
+                >
+                <el-option label="未审核" value="未审核"></el-option>
+                <el-option label="已通过" value="已通过"></el-option>
+                <el-option label="未通过" value="未通过"></el-option>
+                </el-select><br/>
         <el-button type="primary" @click="updateData">确认修改</el-button>     
     </el-dialog>
 
+    <el-drawer v-model="showDetail" title="会议详情" size="40%">
+        <div class="drawer-content">
+            <div class="item">
+                <span class="label">会议封面：</span>
+                <el-image 
+                    :src="currentMeeting.cover_url" 
+                    :preview-src-list="[currentMeeting.cover_url]"
+                    style="width: 180px; height: 180px"
+                    fit="cover"
+                >
+                    <template #error>
+                        <div class="image-error">加载失败</div>
+                    </template>
+                </el-image>
+            </div>
+            <div class="item">
+                <span class="label">会议ID：</span>
+                <span>{{ currentMeeting.meeting_id }}</span>
+            </div>
+            <div class="item">
+                <span class="label">会议名称：</span>
+                <span>{{ currentMeeting.meeting_name }}</span>
+            </div>
+            <div class="item">
+                <span class="label">开始时间：</span>
+                <span>{{ currentMeeting.start_time }}</span>
+            </div>
+            <div class="item">
+                <span class="label">结束时间：</span>
+                <span>{{ currentMeeting.end_time }}</span>
+            </div>
+            <div class="item">
+                <span class="label">会议介绍：</span>
+                <span>{{ currentMeeting.content }}</span>
+            </div>
+            <div class="item">
+                <span class="label">创建时间：</span>
+                <span>{{ currentMeeting.create_time }}</span>
+            </div>
+            <div class="item">
+                <span class="label">创建人：</span>
+                <span>{{ currentMeeting.creator_name }}</span>
+            </div>
+            <div class="item">
+                <span class="label">状态：</span>
+                <el-tag
+                    :type="currentMeeting.audit_status === 0 ? 'info' : 
+                        currentMeeting.audit_status === 1 ? 'success' : 
+                        currentMeeting.audit_status === 2 ? 'danger' : 'default'"
+                    effect="plain"
+                    size="small"
+                    style="padding: 4px 10px; font-size: 14px;"
+                >
+                    {{ statusMap[currentMeeting.audit_status] }}
+                </el-tag>
+            </div>
+        </div>
+        <template #footer>
+            <el-button @click="showDetail = false">关闭</el-button>
+        </template>
+    </el-drawer>
 
-
-    <el-table :data="tableData" style="width: 100%">
-        <el-table-column type="selection" width="55" />
-        <el-table-column prop="cover_url" label="封面" width="100">
+    <el-table :data="tableData" style="width: 80%" align="center" v-loading="loading">
+        <el-table-column prop="meeting_id" label="会议号" width="70" align="center"/>
+        <el-table-column prop="cover_url" label="封面" width="120" align="center">
         <template #default="scope">
             <div 
                 class="custom-image" 
@@ -178,19 +244,29 @@
                 </div>
             </div>
         </Teleport>
-        <el-table-column prop="meeting_id" label="会议号" width="120" />
-        <el-table-column prop="meeting_name" label="会议名称" width="120" show-overflow-tooltip/>
-        <el-table-column prop="meeting_date" label="会议日期" />
-        <el-table-column prop="start_time" label="开始时间" />
-        <el-table-column prop="end_time" label="结束时间" />
-        <el-table-column prop="content" label="介绍" width="240" show-overflow-tooltip />
-        <el-table-column prop="create_time" label="创建时间" />
-        <el-table-column prop="creator_name" label="创建人" />
-        <el-table-column prop="audit_status" label="状态" />
-        <el-table-column label="操作" width="240" >
+        <el-table-column prop="meeting_name" label="会议名称" width="80" show-overflow-tooltip align="center"/>
+        <el-table-column prop="start_time" label="会议时间" width="120" align="center"/>
+        <el-table-column prop="create_time" label="创建时间" width="120" align="center"/>
+        <el-table-column prop="creator_name" label="创建人" width="100" align="center"/>
+        <el-table-column prop="audit_status" label="状态" width="100" align="center">
             <template #default="scope">
-                <el-button type="primary" plain @click="updateMeeting(scope.row)">修改</el-button>
-                <el-button type="primary" plain @click="deleteMeeting(scope.row.meeting_id)">删除</el-button>
+                <el-tag
+                    :type="scope.row.audit_status === 0 ? 'info' : 
+                            scope.row.audit_status === 1 ? 'success' : 
+                            scope.row.audit_status === 2 ? 'danger' : 'default'"
+                    effect="plain"
+                    size="small"
+                    style="padding: 4px 10px; font-size: 17px;"
+                >
+                {{  statusMap[scope.row.audit_status as keyof StatusMap] }}
+                </el-tag>
+            </template>
+        </el-table-column>
+        <el-table-column label="操作" width="150" align="center">
+            <template #default="scope">
+                <el-button link type="primary" plain @click="updateMeeting(scope.row)">修改</el-button>
+                <el-button link type="primary" plain @click="deleteMeeting(scope.row.meeting_id)">删除</el-button>
+                <el-button link type="primary" plain @click="detail(scope.row)">详情</el-button>
             </template>
         </el-table-column> 
     </el-table>
@@ -198,7 +274,7 @@
     <el-pagination
       v-model:current-page="currentPage"
       v-model:page-size="pageSize"
-      :page-sizes="[3, 6, 12, 24]"
+      :page-sizes="[5, 10, 20, 50]"
       layout="total, sizes, prev, pager, next, jumper"
       :total="total"
       @size-change="handleSizeChange"
@@ -207,13 +283,13 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted  } from 'vue';
+import { ref, onMounted } from 'vue';
 import axios from 'axios';
 import {  Search,Plus } from '@element-plus/icons-vue'; 
-import { ElMessage,ElMessageBox  } from 'element-plus';
+import { ElMessage,ElMessageBox } from 'element-plus';
 import { useUserStore } from '@/stores/user';
-import type { ImageProps } from 'element-plus'
 import router from '@/router';
+import type { UploadProps,UploadFile } from 'element-plus';
 
     let userStore = useUserStore()
 
@@ -224,45 +300,79 @@ import router from '@/router';
     let tableData = ref([])
     let cover_url = ref('')
     let meeting_name = ref('')
-    let meeting_date = ref('')
     let start_time = ref('')
     let end_time = ref('')
     let content = ref('')
     let create_time = ref('')
     let creator_name = ref('')
-    let audit_status = ref('0')
+    let audit_status = ref<number>(0)
 
     let updateDialogVisible = ref(false)
     let nmeeting_id = ref('')
     let ncover_url = ref('')
     let nmeeting_name = ref('')
-    let nmeeting_date = ref('')
     let nstart_time = ref('')
     let nend_time = ref('')
     let ncontent = ref('')
     let ncreate_time = ref('')
     let ncreator_name = ref('')
-    let naudit_status = ref('')
+    let naudit_status = ref<string>('未审核')
 
     //图片
     let customPreviewVisible = ref(false)
     let customPreviewUrl = ref('')
-    
+
     //分页相关
     const currentPage = ref(1)
-    const pageSize = ref(3)
+    const pageSize = ref(5)
     const total = ref(0)
     const loading = ref(false)
 
     //创建会议抽屉
     let meetingCreation = ref(false)
     let updateContent = ref(false)
+    //信息详情
+    let showDetail = ref(false)
+    let currentMeeting:any = ref({})
 
-    
+    //会议状态转换
+    // 修改状态映射的类型定义
+    interface StatusMap {
+        [key: number]: string;
+        0: '未审核';
+        1: '已通过';
+        2: '未通过';
+    }
+
+    interface StatusReverseMap {
+        [key: string]: number;
+        '未审核': 0;
+        '已通过': 1;
+        '未通过': 2;
+    }
+
+    // 状态映射：数字 → 字符串
+    const statusMap: StatusMap = {
+        0: '未审核',
+        1: '已通过',
+        2: '未通过'
+    };
+
+    // 字符串 → 数字（创建会议时用）
+    const statusReverseMap: StatusReverseMap = {
+        '未审核': 0,
+        '已通过': 1,
+        '未通过': 2
+    };
+
 
     //图片预览
     // 打开预览
     function openCustomPreview(url: string) {
+        if (!url) {
+            ElMessage.warning("没有图片可预览")
+            return
+        }
         customPreviewUrl.value = url
         customPreviewVisible.value = true
     }
@@ -271,6 +381,7 @@ import router from '@/router';
     function closeCustomPreview() {
         customPreviewVisible.value = false
     }
+
 
     //日期选择
     const shortcuts = [
@@ -295,7 +406,7 @@ import router from '@/router';
             },
         },
     ]
-
+        //禁用未来日期
     const disabledDate = (time: Date) => {
         return time.getTime() > Date.now()
     }
@@ -304,7 +415,8 @@ import router from '@/router';
     function handleSizeChange(val: number) {
         pageSize.value = val
         currentPage.value = 1
-        if (!(creatorNameText.value.trim() && meetingNameText.value.trim() && meetingDateText.value.trim())) {
+
+        if (!creatorNameText.value && !meetingNameText.value && !meetingDateText.value) {
             getAllMeeting()
         }
         else{
@@ -313,7 +425,8 @@ import router from '@/router';
     }
     function handleCurrentChange(val: number) {
         currentPage.value = val
-       if (!(creatorNameText.value.trim() && meetingNameText.value.trim() && meetingDateText.value.trim())) {
+
+       if (!creatorNameText.value && !meetingNameText.value && !meetingDateText.value) {
             getAllMeeting()
         }
         else{
@@ -332,6 +445,40 @@ import router from '@/router';
             })
     }
 
+    // 图片上传处理 - 创建会议
+    const handleCoverChange: UploadProps['onChange'] = (uploadFile: UploadFile) => {
+        const file = uploadFile.raw
+        if (file) {
+            const reader = new FileReader()
+            reader.onload = (e) => {
+                cover_url.value = e.target?.result as string
+            }
+            reader.readAsDataURL(file)
+        }
+    }
+    // 图片上传处理 - 修改会议
+    const handleUpdateCoverChange: UploadProps['onChange'] = (uploadFile: UploadFile) => {
+        const file = uploadFile.raw
+        if (file) {
+            const reader = new FileReader()
+            reader.onload = (e) => {
+                ncover_url.value = e.target?.result as string
+            }
+            reader.readAsDataURL(file)
+        }
+    }   
+    //日期格式修改
+    const formatDateTime = (date: Date | string | null): string => {
+        if (!date) return '';
+        const d = new Date(date);
+        const year = d.getFullYear();
+        const month = String(d.getMonth() + 1).padStart(2, '0');
+        const day = String(d.getDate()).padStart(2, '0');
+        const hours = String(d.getHours()).padStart(2, '0');
+        const minutes = String(d.getMinutes()).padStart(2, '0');
+        const seconds = String(d.getSeconds()).padStart(2, '0');
+        return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
+    }
     //显示所有数据
     onMounted(() => {
         getAllMeeting()
@@ -349,7 +496,6 @@ import router from '@/router';
             tableData.value = (res.data.list || []).map((item: any) => ({
                 meeting_id:item.meeting_id,
                 meeting_name:item.meeting_name,
-                meeting_date:item.meeting_date,
                 start_time:item.start_time,
                 end_time:item.end_time,
                 content:item.content || '',
@@ -371,40 +517,67 @@ import router from '@/router';
     }
     //查询
     function searchCombin() {
-        if (!(creatorNameText.value.trim() && meetingNameText.value.trim() && meetingDateText.value.trim())) {
-            getAllMeeting()
-            return
-        }
         loading.value = true
-        axios.get('http://localhost:8080/getMeetingsBy',{
-            params:{
-                creator_name:creatorNameText.value.trim(),
-                meeting_name:meetingNameText.value.trim(),
-                meeting_date:meetingDateText.value.trim(),
-                currentPage:currentPage.value,
-                pageSize:pageSize.value
+        interface QueryParams {
+            currentPage: number;
+            pageSize: number;
+            creator_name?: string;
+            meeting_name?: string;
+            start_time?: string;
+        }
+        const params:QueryParams = {
+            currentPage: currentPage.value,
+            pageSize: pageSize.value
+        };
+        
+        // 只添加非空的查询条件
+        if (creatorNameText.value.trim()) {
+            params.creator_name = creatorNameText.value.trim();
+        }
+        if (meetingNameText.value.trim()) {
+            params.meeting_name = meetingNameText.value.trim();
+        }
+        if (meetingDateText.value) {
+            try {
+                params.start_time = new Date(meetingDateText.value).toISOString();
+            } catch (e) {
+                ElMessage.error('日期格式错误');
+                loading.value = false;
+                return;
             }
-        })
+        }
+
+        axios.get('http://localhost:8080/getMeetingsBy', { params })
         .then(res => {
-            tableData.value = res.data.list || []
-            total.value = res.data.total || 0
+            console.log(res.data)
+            tableData.value = (res.data.list || []).map((item: any) => ({
+                meeting_id: item.meeting_id,
+                meeting_name: item.meeting_name,
+                start_time: item.start_time,
+                end_time: item.end_time,
+                content: item.content || '',
+                cover_url: item.cover_url,
+                create_time: item.create_time,
+                creator_name: item.creator_name,
+                audit_status: item.audit_status
+            }));
+            total.value = res.data.total || 0;
         })
         .catch(error => {
-            console.log("搜索失败：", error)
-            ElMessage.error("搜索失败")
-            tableData.value = []
+            console.error('查询失败:', error);
+            ElMessage.error('查询失败');
+            tableData.value = [];
         })
         .finally(() => {
-            loading.value = false
-        })
+            loading.value = false;
+        });
     }
-
-    function check(id:number,name:any) {
-        if (userStore.userName != name) {
-            ElMessage.warning("您无审核权限")
-            return
-        }
-    }
+    // function check(id:number,name:any) {
+    //     if (userStore.userName != name) {
+    //         ElMessage.warning("您无审核权限")
+    //         return
+    //     }
+    // }
     //更新数据
     function updateMeeting(row:any){
         if (row.creator_name != userStore.userName ) {
@@ -415,38 +588,46 @@ import router from '@/router';
         nmeeting_id.value = row.meeting_id
         ncover_url.value = row.cover_url
         nmeeting_name.value = row.meeting_name
-        nmeeting_date.value = row.meeting_date
         nstart_time.value = row.start_time
         nend_time.value = row.end_time
         ncontent.value = row.content
         ncreate_time.value = row.create_time
         ncreator_name.value = row.creator_name
-        naudit_status.value = row.audit_status
+        naudit_status.value = "未审核"
     }
-    function updateData() {
-        if (!ncover_url.value || !nmeeting_name.value || !nmeeting_date.value || !nstart_time.value || !nend_time.value || !ncontent.value ) {
+    async function updateData() {
+        if (!nmeeting_name.value || !nstart_time.value || !nend_time.value || !ncontent.value ) {
             ElMessage.warning("请完善信息")
             return
         }
-        let meeting = {
-           meeting_id:nmeeting_id.value,
-           cover_url:ncover_url.value,
-           meeting_name:nmeeting_name.value,
-           meeting_date:nmeeting_date.value,
-           start_time:nstart_time.value,
-           end_time:nend_time.value,
-           content:ncontent.value,
-           create_time:ncreate_time,
-           creator_name:ncreator_name,
-           audit_status:0 
+          // 检查时间有效性
+        if (new Date(nstart_time.value) >= new Date(nend_time.value)) {
+            ElMessage.error("结束时间必须晚于开始时间")
+            return
         }
-        const config = {
+
+        const statusNumber = statusReverseMap[naudit_status.value as keyof StatusReverseMap];
+        if (statusNumber === undefined) {
+            ElMessage.error("会议状态值无效，请选择 未审核/已通过/未通过");
+            return;
+        }
+        let meeting = {
+            meeting_id:nmeeting_id.value,
+            cover_url:ncover_url.value,
+            meeting_name:nmeeting_name.value,
+            start_time:formatDateTime(nstart_time.value),
+            end_time:formatDateTime(nend_time.value),
+            content:ncontent.value,
+            create_time:formatDateTime(ncreate_time.value),
+            creator_name:ncreator_name.value,
+            audit_status:0
+        }
+
+        axios.post("http://localhost:8080/updateMeeting",meeting,{
             headers: {
                 'Content-Type': 'application/json'
             }
-        }
-
-        axios.post("http://localhost:8080/updateMeeting",meeting,config)
+        })
         .then(res => {
             console.log(res.data)
             if (res.data > 0) {
@@ -463,55 +644,88 @@ import router from '@/router';
         })
     }
 
+    function detail(row:any) {
+        showDetail.value = true
+        currentMeeting.value = { ...row }
+    }
+
     function deleteMeeting(no:number){
-        if (userStore.userName != "admin" ) {
+        if (userStore.userName != userStore.userName ) {
             ElMessage.warning("您无删除权限")
             return
         }
-        axios.get(`http://localhost:8080/deleteMeeting/${no}`)
-        .then(res => {
-            if (res.data > 0) {
-                ElMessage.success("删除成功")
-            } else {
-                ElMessage.error("删除失败")
+
+        ElMessageBox.confirm(
+            '确定要删除这个会议吗？',
+            '确认删除',
+            {
+                confirmButtonText: '确定',
+                cancelButtonText: '取消',
+                type: 'warning',
             }
-        })
-        .catch(error => {
-            console.error("删除操作失败：", error)
-            ElMessage.error("删除商品时发生错误")
-        })
+        ).then(() => {
+            axios.get(`http://localhost:8080/deleteMeeting/${no}`)
+            .then(res => {
+                if (res.data > 0) {
+                    ElMessage.success("删除成功")
+                } else {
+                    ElMessage.error("删除失败")
+                }
+            })
+            .catch(error => {
+                console.error("删除操作失败：", error)
+                ElMessage.error("删除发生错误")
+            })
+        }).catch(() => {
+            ElMessage.info("已取消删除")
+        }) 
     }
 
-    function createMeeting() {
-        if (!cover_url.value || !meeting_name.value || !meeting_date ||!start_time ||!end_time || !content || !create_time || !creator_name || !audit_status) {
+    async function createMeeting() {
+        if (!meeting_name.value ||!start_time.value ||!end_time.value || !content.value || !create_time.value || !creator_name.value || !audit_status.value) {
             ElMessage.error("请完善会议信息")
+            return
+        }
+         // 检查时间有效性
+        if (new Date(start_time.value) >= new Date(end_time.value)) {
+            ElMessage.error("结束时间必须晚于开始时间")
+            return
         }
 
+        // 状态字符串转数字（核心修改）
+        const statusNumber = statusReverseMap[audit_status.value as keyof StatusReverseMap];
+        if (statusNumber === undefined) {
+            ElMessage.error("会议状态值无效，请选择 未审核/已通过/未通过");
+            return;
+        }
         let meeting = {
             cover_url:cover_url.value,
-            meeting_name:meeting_name.value,
-            meeting_date:meeting_date.value,
-            start_time:start_time.value,
-            end_time:end_time.value,
-            content:content.value,
-            create_time:create_time.value,
-            creator_name:creator_name.value,
-            audit_status:audit_status.value
-        }
+            meeting_name: meeting_name.value,
+            start_time: formatDateTime(start_time.value),
+            end_time: formatDateTime(end_time.value),
+            content: content.value,
+            create_time: formatDateTime(create_time.value),
+            creator_name: creator_name.value,
+            audit_status: statusNumber
+        };
 
-        axios.post("http://localhost:8080/addMeeting",meeting)
+        axios.post("http://localhost:8080/addMeeting",meeting,{
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        })
         .then(res => {
+            console.log(res.data)
             ElMessage.success("创建成功")
             meetingCreation.value = false
             cover_url.value=''
             meeting_name.value=''
-            meeting_date.value=''
             start_time.value=''
             end_time.value=''
             content.value=''
             create_time.value=''
             creator_name.value=''
-            audit_status.value=''
+            audit_status.value=0
             getAllMeeting()
         })
         .catch(error => {
@@ -519,9 +733,14 @@ import router from '@/router';
             console.log("创建会议失败：",error)
         })
     }
+
 </script>
 
 <style scoped>
+    .table-wrap {
+        display: flex;
+        justify-content: center;
+    }
     .custom-image-viewer {
         position: fixed;
         top: 0;
@@ -544,5 +763,44 @@ import router from '@/router';
         max-width: 90%;
         max-height: 90%;
         object-fit: contain;
+    }
+
+    .drawer-content {
+        padding: 20px;
+    }
+
+    .item {
+        margin-bottom: 15px;
+        display: flex;
+        align-items: center;
+    }
+
+    .label {
+        width: 100px;
+        color: #8c8c8c;
+        font-weight: 500;
+    }
+
+    .avatar-uploader .avatar {
+        width: 178px;
+        height: 178px;
+        display: block;
+        cursor: pointer;
+    }
+
+    .avatar-uploader-icon {
+        font-size: 28px;
+        color: #8c8c8c;
+        width: 178px;
+        height: 178px;
+        line-height: 178px;
+        text-align: center;
+        border: 1px dashed #d9d9d9;
+        border-radius: 6px;
+        cursor: pointer;
+    }
+
+    .custom-image {
+        cursor: pointer;
     }
 </style>
