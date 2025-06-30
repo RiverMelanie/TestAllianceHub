@@ -51,6 +51,11 @@ const router = createRouter({
           component: ()=>import('../views/ManagerIndustryDynamicsManagement.vue'),
         },
         {
+              path: '/ManagerReviewDynamics',
+              name: 'ManagerReviewDynamics',
+              component: ()=>import('../views/ManagerReviewDynamicsManagement.vue'),
+        },
+        {
           path: '/ManagerCourseManagement',
           name: 'ManagerCourseManagement',
           component: ()=>import('../views/ManagerCourseManagement.vue'),

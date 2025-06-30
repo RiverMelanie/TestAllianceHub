@@ -24,8 +24,6 @@ import axios from 'axios';
 import { ElMessage } from 'element-plus';
 import { ref } from 'vue';
 import { useRouter } from 'vue-router';
-import { useUserStore } from '@/stores/user'; 
-const store = useUserStore(); 
 	let router=useRouter()
 	let uname=ref("")
 	let upwd=ref("")
@@ -38,8 +36,6 @@ const store = useUserStore();
 		.then(res=>{
 			if(res.data){
 				ElMessage.success("登录成功")
-				store.username=uname.value
-				store.userpwd=upwd.value
 				router.push("/home")
 			}else{
 				ElMessage.error("登录失败")

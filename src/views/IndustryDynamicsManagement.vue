@@ -70,7 +70,7 @@
     placeholder="Please input"
     clearable
     /><br>
-    <el-button type="primary" @click="addDynamic">添加书籍</el-button>
+    <el-button type="primary" @click="addDynamic">添加行业动态</el-button>
      </el-dialog>
 
      <!-- 分页组件 -->
@@ -90,6 +90,7 @@ import {ref} from 'vue'
 import { ElMessage } from 'element-plus'
 import {useRouter} from 'vue-router'
 import { useUserStore } from '@/stores/user'; 
+import { onMounted } from 'vue';
 
 let router=useRouter()
 let dynamicId=ref('')
@@ -142,7 +143,7 @@ const search = () => {
   currentPage.value = 1; // 搜索后重置页码为第 1 页
   fetchData();
 };
-
+onMounted(search);
 // 页码改变
 const handleCurrentChange = (newPage:any) => {
   currentPage.value = newPage;
@@ -150,17 +151,6 @@ const handleCurrentChange = (newPage:any) => {
 };
 
 function addDynamic(){
-    let user={
-        username:store.username,
-        password:store.userpwd
-    }
-    axios.post("http://localhost:8080/searchid",user)
-    .then(res=>{
-      console.log(res.data)
-      publisherId.value=res.data
-      console.log(publisherId.value)
-    })
-
     let obj={
         publisherId:publisherId.value,
         title:title.value,
@@ -176,10 +166,18 @@ function addDynamic(){
             ElMessage.success("添加成功，待审核通过后即刻发布")
             dialogVisible.value=false
             search();
-        }
-        
+        } 
     })
-    axios.post("http://localhost:8080/addreviewrecord",obj)
+    let reviewobj={
+        ReviewerID:1,
+        Title:title.value,
+        NewsImage:imageUrl.value ,
+        Content:content.value,   
+        NewsSummary:summary.value,
+        Author:author.value,
+        auditStatus:0
+    }
+    axios.post("http://localhost:8080/addreviewrecord",reviewobj)
     
 }
 
