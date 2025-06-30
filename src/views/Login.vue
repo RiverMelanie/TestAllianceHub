@@ -63,7 +63,7 @@
     </div>
 
 	<!-- 用户注册表单部分 -->
-	<div class="form-box" v-if="showUserRegisterForm">
+	<div class="form-box2" v-if="showUserRegisterForm">
 		<h2>用户注册</h2>
 		<el-form 
 		:model="userRegisterForm" 
@@ -76,16 +76,14 @@
 			<el-input v-model="userRegisterForm.userId" disabled style="width: 100%"></el-input>
 		</el-form-item>
 		
-		<!-- 所属企业ID (必填) -->
 		<el-form-item label="所属企业ID" prop="companyId">
 			<el-input 
-			v-model="userRegisterForm.companyId" 
+			v-model="userRegisterForm.company_id" 
 			placeholder="请输入企业ID" 
 			style="width: 100%"
 			></el-input>
 		</el-form-item>
 		
-		<!-- 用户名 (必填) -->
 		<el-form-item label="用户名" prop="username">
 			<el-input 
 			v-model="userRegisterForm.username" 
@@ -120,8 +118,8 @@
 
 		<el-form-item label="性别" prop="gender">
 			<el-radio-group v-model="userRegisterForm.gender">
-			<el-radio :label="1">男</el-radio>
-			<el-radio :label="2">女</el-radio>
+			<el-radio :value="1">男</el-radio>
+			<el-radio :value="2">女</el-radio>
 			</el-radio-group>
 		</el-form-item>
 		
@@ -159,6 +157,9 @@ import axios from 'axios';
 import { useRouter } from 'vue-router';
 import { ElMessage, type FormInstance, type FormRules } from 'element-plus';
 import { ref, onMounted } from 'vue';
+import { useUserStore } from '@/stores/user.ts';
+
+	let store = useUserStore()
 
 	let router=useRouter()
 	let uname=ref("")
@@ -208,6 +209,13 @@ import { ref, onMounted } from 'vue';
 			if(res.data.success){
 				ElMessage.success("登录成功")
 
+				const store = useUserStore()
+        		store.setUserInfo(res.data.userInfo) // 保存完整用户信息
+
+				console.log("登录返回Token:", res.data.token); 
+				localStorage.setItem('token', res.data.token); 
+				localStorage.setItem('userId', res.data.userInfo.user_id); 
+
 				if(loginType.value === 'user') {
 					router.push("/home") // 用户主页
 				} else {
@@ -218,6 +226,8 @@ import { ref, onMounted } from 'vue';
 				ElMessage.error(res.data.message ||"登录失败")
 			}
 		})
+
+		store.userName = uname.value
 	}
 
 	// 注册表单数据
@@ -294,7 +304,7 @@ import { ref, onMounted } from 'vue';
 	// 用户注册表单数据
 	const userRegisterForm = ref({
 		userId: '',
-		companyId: '',
+		company_id: '',
 		username: '',
 		nickname: '',
 		phone: '',
@@ -306,7 +316,7 @@ import { ref, onMounted } from 'vue';
 
 	// 用户注册表单验证规则
 	const userRegisterRules = {
-		companyId: [
+		company_id: [
 			{ required: true, message: '请输入企业ID', trigger: 'blur' },
 			{ pattern: /^\d+$/, message: '企业ID必须为数字', trigger: 'blur' }
 		],
@@ -363,17 +373,21 @@ import { ref, onMounted } from 'vue';
 			// 先验证表单
 			await userRegisterFormRef.value.validate();
 
-			const response = await axios.post('http://localhost:8080/register', {
-				company_id: Number(userRegisterForm.value.companyId),
+			// 确保所有参数正确转换
+			const registerData = {
+				company_id: Number(userRegisterForm.value.company_id),
 				username: userRegisterForm.value.username,
 				nickname: userRegisterForm.value.nickname,
 				phone: userRegisterForm.value.phone,
-				email: userRegisterForm.value.email ,
-				gender: userRegisterForm.value.gender ,
-				password: userRegisterForm.value.password,
-			});
+				email: userRegisterForm.value.email,
+				gender: userRegisterForm.value.gender, 
+				password: userRegisterForm.value.password
+			};
+
+			const response = await axios.post('http://localhost:8080/register', registerData);
 			
 			if (response.data.success) {
+				userRegisterForm.value.userId = response.data.userId; // 同步后端生成的 ID
 				ElMessage.success('注册成功');
 				backToTypeSelection();
 			} else {
@@ -385,7 +399,7 @@ import { ref, onMounted } from 'vue';
 			} else {
 				ElMessage.error('注册失败: ' + error.message);
 			}
-			ElMessage.error('注册失败' );
+			//ElMessage.error('注册失败' );
 		}
 	}
 </script>
@@ -415,6 +429,14 @@ import { ref, onMounted } from 'vue';
 	}
 
 	.form-box {
+	border: 1px solid #f8f5f5;
+	width: 500px;
+	padding: 30px;
+	border-radius: 10px;
+	background-color: rgb(127, 232, 255);
+	}
+
+	.form-box2{
 	border: 1px solid #f8f5f5;
 	width: 500px;
 	padding: 30px;
