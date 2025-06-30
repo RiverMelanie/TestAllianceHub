@@ -265,7 +265,7 @@
         <el-table-column label="操作" width="150" align="center">
             <template #default="scope">
                 <el-button link type="primary" plain @click="updateMeeting(scope.row)">修改</el-button>
-                <el-button link type="primary" plain @click="deleteMeeting(scope.row.meeting_id)">删除</el-button>
+                <el-button link type="primary" plain @click="deleteMeeting(scope.row)">删除</el-button>
                 <el-button link type="primary" plain @click="detail(scope.row)">详情</el-button>
             </template>
         </el-table-column> 
@@ -649,12 +649,12 @@ import type { UploadProps,UploadFile } from 'element-plus';
         currentMeeting.value = { ...row }
     }
 
-    function deleteMeeting(no:number){
-        if (userStore.userName != userStore.userName ) {
+    function deleteMeeting(row:any){
+        if (row.creator_name != userStore.userName ) {
             ElMessage.warning("您无删除权限")
             return
         }
-
+        const no = row.meeting_id
         ElMessageBox.confirm(
             '确定要删除这个会议吗？',
             '确认删除',
@@ -668,6 +668,7 @@ import type { UploadProps,UploadFile } from 'element-plus';
             .then(res => {
                 if (res.data > 0) {
                     ElMessage.success("删除成功")
+                    getAllMeeting()
                 } else {
                     ElMessage.error("删除失败")
                 }
