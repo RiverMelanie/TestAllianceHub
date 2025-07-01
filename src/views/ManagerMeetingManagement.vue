@@ -758,6 +758,7 @@ import type { UploadProps,UploadFile } from 'element-plus';
             .then(res => {
                 if (res.data > 0) {
                     ElMessage.success("删除成功")
+                    getAllMeeting()
                 } else {
                     ElMessage.error("删除失败")
                 }
