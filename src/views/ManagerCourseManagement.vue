@@ -217,7 +217,11 @@
 	})
 	const detailDialogVisible = ref(false)
 	const currentCourse = ref(null)
-
+	const currentUser = ref({
+	  userId: null,  // 用于 created_by（外键）
+	  nickname: ""   // 仅用于显示
+	});
+	
 	// 查询方法
 	const handleQuery = () => {
 		currentPage.value = 1 // 查询时重置到第一页
@@ -271,9 +275,17 @@
 	}
 
 	// 初始化时调用搜索
-	onMounted(() => {
-		search()
-	})
+onMounted(() => {
+  const userInfo = localStorage.getItem("userInfo");
+  if (userInfo) {
+    currentUser.value = JSON.parse(userInfo);
+    // 确保 created_by 是数字类型
+    if (typeof currentUser.value.userId === 'string') {
+      currentUser.value.userId = parseInt(currentUser.value.userId);
+    }
+  }
+  search();
+});
 
 	const form = ref({
 		course_name: '',
@@ -342,31 +354,37 @@
 
 
 	// 添加课程
-	const addcrs = () => {
-		if (!form.value.course_name) {
-			ElMessage.error('请填写课程名')
-			return
-		}
+const addcrs = () => {
+  if (!form.value.course_name) {
+    ElMessage.error("请填写课程名");
+    return;
+  }
 
-		axios.post("http://localhost:8080/addcrs", form.value)
-			.then(res => {
-				console.log("完整响应:", res) // 调试日志
+  // 确保 currentUser.userId 是有效数字
+  if (!currentUser.value.userId || isNaN(currentUser.value.userId)) {
+    ElMessage.error("无法获取当前用户ID，请重新登录");
+    return;
+  }
 
-				// 统一判断逻辑
-				if (res.data.success) {
-					ElMessage.success(res.data.message || "添加成功")
-					dialogVisible.value = false
-					resetForm()
-					search() // 刷新列表
-				} else {
-					ElMessage.error(res.data.message || "操作失败")
-				}
-			})
-			.catch(error => {
-				console.error("请求出错:", error)
-				ElMessage.error('请求失败: ' + (error.response?.data?.message || error.message))
-			})
-	}
+  // 设置 created_by 为当前用户的数字ID
+  form.value.created_by = currentUser.value.userId;
+
+  axios.post("http://localhost:8080/addcrs", form.value)
+    .then((res) => {
+      if (res.data.success) {
+        ElMessage.success("添加成功");
+        dialogVisible.value = false;
+        resetForm();
+        search();
+      } else {
+        ElMessage.error(res.data.message || "添加失败");
+      }
+    })
+    .catch((error) => {
+      console.error("添加课程错误:", error.response?.data || error.message);
+      ElMessage.error("添加失败: " + (error.response?.data?.message || error.message));
+    });
+};
 
 	// 重置表单
 	const resetForm = () => {
@@ -378,7 +396,7 @@
 			video_url: '',
 			author: '',
 			status: 1,
-			created_by: 1,
+			created_by: currentUser.value.userId,
 			updated_at: null
 		}
 	}
