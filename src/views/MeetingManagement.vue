@@ -288,7 +288,6 @@ import axios from 'axios';
 import {  Search,Plus } from '@element-plus/icons-vue'; 
 import { ElMessage,ElMessageBox } from 'element-plus';
 import { useUserStore } from '@/stores/user';
-import router from '@/router';
 import type { UploadProps,UploadFile } from 'element-plus';
 
     let userStore = useUserStore()
@@ -305,7 +304,7 @@ import type { UploadProps,UploadFile } from 'element-plus';
     let content = ref('')
     let create_time = ref('')
     let creator_name = ref('')
-    let audit_status = ref<number>(0)
+    let audit_status = ref<number>()
 
     let updateDialogVisible = ref(false)
     let nmeeting_id = ref('')
@@ -572,12 +571,6 @@ import type { UploadProps,UploadFile } from 'element-plus';
             loading.value = false;
         });
     }
-    // function check(id:number,name:any) {
-    //     if (userStore.userName != name) {
-    //         ElMessage.warning("您无审核权限")
-    //         return
-    //     }
-    // }
     //更新数据
     function updateMeeting(row:any){
         if (row.creator_name != userStore.userName ) {

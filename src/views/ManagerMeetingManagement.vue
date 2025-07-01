@@ -364,7 +364,7 @@ import type { UploadProps,UploadFile } from 'element-plus';
     let content = ref('')
     let create_time = ref('')
     let creator_name = ref('')
-    let audit_status = ref<number>(1)
+    let audit_status = ref<number>()
 
     let updateDialogVisible = ref(false)
     let nmeeting_id = ref('')
