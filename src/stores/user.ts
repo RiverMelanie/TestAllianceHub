@@ -6,6 +6,7 @@ export const useUserStore = defineStore('user', () => {
   
   let userName = ref("")
 
+
   const userId = ref(0)
   const userInfo = ref<any>(null) // 或者定义具体的用户接口类型
   

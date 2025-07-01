@@ -159,9 +159,8 @@ import { ElMessage, type FormInstance, type FormRules } from 'element-plus';
 import { ref, onMounted } from 'vue';
 import { useUserStore } from '@/stores/user.ts';
 
-	let store = useUserStore()
-
 	let router=useRouter()
+	let store = useUserStore()
 	let uname=ref("")
 	let upwd=ref("")
 
