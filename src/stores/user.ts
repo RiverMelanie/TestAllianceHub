@@ -1,9 +1,11 @@
+
 import { ref } from 'vue'
 import { defineStore } from 'pinia'
 
 export const useUserStore = defineStore('user', () => {
   
   let userName = ref("")
+
 
   const userId = ref(0)
   const userInfo = ref<any>(null) // 或者定义具体的用户接口类型
@@ -22,5 +24,5 @@ export const useUserStore = defineStore('user', () => {
   
   return { userName, userId, userInfo, setUserInfo, clearUser }
 
-  
+
 })

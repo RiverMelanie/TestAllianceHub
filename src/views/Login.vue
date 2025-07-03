@@ -164,9 +164,8 @@ import {
   UserFilled
 } from '@element-plus/icons-vue';
 
-	let store = useUserStore()
-
 	let router=useRouter()
+	let store = useUserStore()
 	let uname=ref("")
 	let upwd=ref("")
 
