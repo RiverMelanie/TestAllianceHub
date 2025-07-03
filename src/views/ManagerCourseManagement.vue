@@ -395,7 +395,7 @@ const addcrs = () => {
 			sort_order: 1,
 			video_url: '',
 			author: '',
-			status: 1,
+			status: 0,
 			created_by: currentUser.value.userId,
 			updated_at: null
 		}
@@ -583,158 +583,244 @@ const addcrs = () => {
 	};
 </script>
 
-<style>
-	/* 上传组件样式 */
-	.avatar-uploader .avatar {
-		width: 178px;
-		height: 178px;
-		display: block;
-	}
+<style scoped>
+/* 全局背景色 */
+body {
+  background-color: #f0f6ff; /* 浅蓝色背景 */
+}
 
-	.avatar-uploader .el-upload {
-		border: 1px dashed var(--el-border-color);
-		border-radius: 6px;
-		cursor: pointer;
-		position: relative;
-		overflow: hidden;
-		transition: var(--el-transition-duration-fast);
-	}
+.search-form {
+  padding: 20px;
+  background: #ffffff; /* 白色背景 */
+  border-radius: 8px;
+  margin-bottom: 20px;
+  box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.05);
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
 
-	.avatar-uploader .el-upload:hover {
-		border-color: var(--el-color-primary);
-	}
+.el-table {
+  margin-bottom: 20px;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.05);
+  background-color: #ffffff; /* 白色背景 */
+}
 
-	.el-icon.avatar-uploader-icon {
-		font-size: 28px;
-		color: #8c939d;
-		width: 178px;
-		height: 178px;
-		text-align: center;
-	}
+.el-table :deep(th) {
+  background-color: #e5f1ff; /* 浅蓝色表头 */
+  color: #3366cc; /* 蓝色文字 */
+  font-weight: 600;
+}
 
-	.video-uploader {
-		display: flex;
-		align-items: center;
-		gap: 10px;
-	}
+.el-pagination {
+  justify-content: flex-end;
+  margin-top: 20px;
+}
 
-	.video-name {
-		margin-left: 10px;
-		color: var(--el-color-primary);
-	}
+.el-dialog {
+  border-radius: 12px;
+  background-color: #ffffff; /* 白色背景 */
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+}
 
-	/* 课程详情容器 */
-	.course-details-container {
-		padding: 0 20px;
-		font-family: 'Helvetica Neue', Helvetica, 'PingFang SC', 'Hiragino Sans GB', Arial, sans-serif;
-	}
+.el-dialog__header {
+  padding: 20px;
+  border-bottom: 1px solid #eee;
+  margin-right: 0;
+  background-color: #e5f1ff; /* 浅蓝色表头 */
+  color: #3366cc; /* 蓝色文字 */
+  border-top-left-radius: 12px;
+  border-top-right-radius: 12px;
+}
 
-	/* 头部区域 */
-	.header-section {
-		margin-bottom: 20px;
-		padding-bottom: 15px;
-		border-bottom: 1px solid #eee;
-	}
+.el-dialog__body {
+  padding: 20px;
+}
 
-	.course-title {
-		margin: 0 0 10px 0;
-		font-size: 20px;
-		color: #333;
-		font-weight: 600;
-	}
+.el-form-item {
+  margin-bottom: 22px;
+}
 
-	.meta-info {
-		display: flex;
-		gap: 20px;
-	}
+/* 上传组件样式 */
+.avatar-uploader .avatar {
+  width: 178px;
+  height: 178px;
+  display: block;
+  object-fit: cover;
+  border-radius: 6px;
+}
 
-	.meta-item {
-		display: flex;
-		align-items: center;
-		font-size: 14px;
-	}
+.avatar-uploader .el-upload {
+  border: 1px dashed #3366cc; /* 蓝色虚线边框 */
+  border-radius: 6px;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+  transition: var(--el-transition-duration-fast);
+  background: #fafafa;
+}
 
-	.meta-label {
-		color: #666;
-		margin-right: 5px;
-	}
+.avatar-uploader .el-upload:hover {
+  border-color: #3366cc; /* 蓝色边框 */
+  background-color: #e5f1ff; /* 浅蓝色背景 */
+}
 
-	.meta-value {
-		color: #333;
-		font-weight: 500;
-	}
+.el-icon.avatar-uploader-icon {
+  font-size: 28px;
+  color: #3366cc; /* 蓝色图标 */
+  width: 178px;
+  height: 178px;
+  text-align: center;
+  line-height: 178px;
+}
 
-	/* 内容区域 */
-	.content-section {
-		display: flex;
-		flex-direction: column;
-		gap: 20px;
-	}
+.video-uploader {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
 
-	.section-title {
-		margin: 0 0 10px 0;
-		font-size: 16px;
-		color: #333;
-		font-weight: 500;
-	}
+.video-name {
+  margin-left: 10px;
+  color: #3366cc; /* 蓝色文字 */
+  font-size: 14px;
+}
 
-	.description-text {
-		margin: 0;
-		font-size: 14px;
-		line-height: 1.6;
-		color: #555;
-	}
+/* 课程详情容器 */
+.course-details-container {
+  padding: 0 20px;
+  font-family: 'Helvetica Neue', Helvetica, 'PingFang SC', 'Hiragino Sans GB', Arial, sans-serif;
+}
 
-	/* 媒体区域 */
-	.media-section {
-		display: flex;
-		flex-direction: column;
-		gap: 20px;
-	}
+/* 头部区域 */
+.header-section {
+  margin-bottom: 25px;
+  padding-bottom: 15px;
+  border-bottom: 1px solid #eee;
+}
 
-	.cover-image {
-		max-width: 100%;
-		max-height: 300px;
-		border-radius: 4px;
-		box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-	}
+.course-title {
+  margin: 0 0 15px 0;
+  font-size: 22px;
+  color: #3366cc; /* 蓝色文字 */
+  font-weight: 600;
+}
 
-	.video-player {
-		width: 100%;
-		max-height: 400px;
-		border-radius: 4px;
-		background: #000;
-		box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-	}
+.meta-info {
+  display: flex;
+  gap: 30px;
+}
 
-	/* 时间信息 */
-	.time-info {
-		margin-top: 15px;
-		padding-top: 15px;
-		border-top: 1px solid #eee;
-		font-size: 13px;
-		color: #666;
-	}
+.meta-item {
+  display: flex;
+  align-items: center;
+  font-size: 14px;
+}
 
-	.time-item {
-		display: flex;
-		margin-bottom: 5px;
-	}
+.meta-label {
+  color: #888;
+  margin-right: 8px;
+}
 
-	.time-label {
-		min-width: 70px;
-		color: #888;
-	}
+.meta-value {
+  color: #3366cc; /* 蓝色文字 */
+  font-weight: 500;
+}
 
-	.time-value {
-		color: #444;
-	}
+/* 内容区域 */
+.content-section {
+  display: flex;
+  flex-direction: column;
+  gap: 25px;
+}
 
-	.search-form .el-button--warning {
-		margin-left: 10px;
-	}
+.section-title {
+  margin: 0 0 12px 0;
+  font-size: 17px;
+  color: #3366cc; /* 蓝色文字 */
+  font-weight: 500;
+  position: relative;
+  padding-left: 10px;
+}
 
-	.el-table .el-button+.el-button {
-		margin-left: 5px;
-	}
+.section-title::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 3px;
+  height: 16px;
+  width: 4px;
+  background: #3366cc; /* 蓝色竖线 */
+  border-radius: 2px;
+}
+
+.description-text {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.8;
+  color: #555;
+}
+
+/* 媒体区域 */
+.media-section {
+  display: flex;
+  flex-direction: column;
+  gap: 25px;
+}
+
+.cover-image {
+  max-width: 100%;
+  max-height: 300px;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+.video-player {
+  width: 100%;
+  max-height: 400px;
+  border-radius: 8px;
+  background: #000;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+/* 时间信息 */
+.time-info {
+  margin-top: 20px;
+  padding-top: 20px;
+  border-top: 1px solid #eee;
+  font-size: 13px;
+  color: #666;
+}
+
+.time-item {
+  display: flex;
+  margin-bottom: 8px;
+}
+
+.time-label {
+  min-width: 80px;
+  color: #888;
+}
+
+.time-value {
+  color: #3366cc; /* 蓝色文字 */
+}
+
+.el-button--text {
+  padding: 6px 8px;
+}
+
+.el-tag {
+  font-weight: 500;
+}
+
+.search-form .el-button--warning {
+  margin-left: 10px;
+}
+
+.el-table .el-button+.el-button {
+  margin-left: 5px;
+}
 </style>
