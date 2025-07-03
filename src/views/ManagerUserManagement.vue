@@ -7,46 +7,79 @@
         </div>
       </template>
 
-      <!-- 查询条件 -->
-      <el-form :inline="true" :model="searchForm">
-        <el-form-item label="用户名称">
-          <el-input v-model="searchForm.username" placeholder="请输入用户名称"></el-input>
-        </el-form-item>
-        <el-form-item label="手机号码">
-          <el-input v-model="searchForm.phone" placeholder="请输入手机号码"></el-input>
-        </el-form-item>
-        <el-form-item label="状态">
-          <el-select v-model="searchForm.status" placeholder="请选择状态">
-            <el-option label="启用" value="0"></el-option>
-            <el-option label="禁用" value="1"></el-option>
-          </el-select>
-        </el-form-item>
-        <el-form-item>
-          <el-button type="primary" @click="getUserList">查询</el-button>
-          <el-button type="primary" @click="resetSearch">刷新</el-button>
-          <el-button type="primary" @click="addDialogVisible = true">添加用户</el-button>
-        </el-form-item>
+      <!-- 查询条件 - 优化后的布局 -->
+      <el-form :inline="true" :model="searchForm" class="search-form">
+        <el-row :gutter="10" style="width:100%; align-items: center">
+          <el-col :span="6">
+            <el-form-item label="用户名称" class="compact-form-item">
+              <el-input 
+                v-model="searchForm.username" 
+                placeholder="请输入用户名称"
+                clearable
+                style="width: 100%"
+              ></el-input>
+            </el-form-item>
+          </el-col>
+          <el-col :span="6">
+            <el-form-item label="手机号码" class="compact-form-item">
+              <el-input 
+                v-model="searchForm.phone" 
+                placeholder="请输入手机号码"
+                clearable
+                style="width: 100%"
+              ></el-input>
+            </el-form-item>
+          </el-col>
+          <el-col :span="5">
+            <el-form-item label="状态" class="compact-form-item">
+              <el-select 
+                v-model="searchForm.status" 
+                placeholder="请选择状态"
+                clearable
+                style="width: 100%"
+              >
+                <el-option label="启用" value="0"></el-option>
+                <el-option label="禁用" value="1"></el-option>
+              </el-select>
+            </el-form-item>
+          </el-col>
+          <el-col :span="7" style="display: flex; align-items: center;">
+            <el-button 
+              type="primary" 
+              @click="getUserList"
+              style="margin-right: 10px"
+            >查询</el-button>
+            <el-button 
+              @click="resetSearch"
+              style="margin-right: 10px"
+            >重置</el-button>
+            <el-button 
+              type="primary" 
+              @click="addDialogVisible = true"
+            >添加用户</el-button>
+          </el-col>
+        </el-row>
       </el-form>
 
-      <!-- 修改表格列定义 -->
+      <!-- 表格 - 调整列宽确保所有信息显示完整 -->
       <el-table :data="userList" border style="width: 100%">
-        <el-table-column prop="userId" label="用户ID" width="100"></el-table-column>
-        <el-table-column prop="company_id" label="公司ID" width="100"></el-table-column>
-        <el-table-column prop="username" label="用户名"></el-table-column>
-        <el-table-column prop="nickname" label="昵称"></el-table-column>
-        <el-table-column prop="phone" label="手机号码"></el-table-column>
-        <el-table-column prop="email" label="邮箱"></el-table-column>
-        <el-table-column prop="gender" label="性别" width="100">
+        <el-table-column prop="userId" label="用户ID" width="70" align="center"></el-table-column>
+        <el-table-column prop="company_id" label="公司ID" width="70" align="center"></el-table-column>
+        <el-table-column prop="username" label="用户名" min-width="90"></el-table-column>
+        <el-table-column prop="nickname" label="昵称" min-width="70"></el-table-column>
+        <el-table-column prop="phone" label="手机号码" min-width="120"></el-table-column>
+        <el-table-column prop="email" label="邮箱" min-width="180"></el-table-column>
+        <el-table-column prop="gender" label="性别" width="70" align="center">
           <template #default="scope">
             {{ formatGender(scope.row.gender) }}
           </template>
         </el-table-column>
-        <el-table-column prop="create_time" label="创建时间" width="180">
+        <el-table-column prop="create_time" label="创建时间" width="155" align="center">
           <template #default="scope">
             {{ formatDate(scope.row.create_time) }}
           </template>
         </el-table-column>
-        <el-table-column prop="status" label="状态" width="100" align="center">
+        <el-table-column prop="status" label="状态" width="70" align="center">
           <template #default="scope">
             <el-tag :type="scope.row.status === 1 ? 'danger' : 'success'">
               {{ scope.row.status === 1 ? '禁用' : '启用' }}
@@ -58,123 +91,200 @@
             {{ scope.row.isSuper === 1 ? '超级管理员' : '普通用户' }}
           </template>
         </el-table-column>
-        <el-table-column label="操作" width="90">
+        <el-table-column label="操作" width="130" fixed="right" align="center">
           <template #default="scope">
-            <el-button size="small" @click="handleEdit(scope.row)"style="margin-left: 5px">编辑</el-button>
-            <el-button 
-              size="small" 
-              type="danger" 
-              @click="handleDelete(scope.row)"
-              style="margin-left: 5px">
-              删除
-            </el-button>
+            <el-button size="small" @click="handleEdit(scope.row)">编辑</el-button>
+            <el-button size="small" type="danger" @click="handleDelete(scope.row)">删除</el-button>
           </template>
         </el-table-column>
       </el-table>
 
-      <!-- 分页 -->
-      <el-pagination
-        @size-change="handleSizeChange"
-        @current-change="handleCurrentChange"
-        :current-page="currentPage"
-        :page-sizes="[5,10, 20, 50]"
-        :page-size="pageSize"
-        layout="total, sizes, prev, pager, next, jumper"
-        :total="total">
-      </el-pagination>
+      <!-- 分页 - 居中显示 -->
+      <div class="pagination-center">
+        <el-pagination
+          @size-change="handleSizeChange"
+          @current-change="handleCurrentChange"
+          :current-page="currentPage"
+          :page-sizes="[5,10, 20, 50]"
+          :page-size="pageSize"
+          layout="total, sizes, prev, pager, next, jumper"
+          :total="total">
+        </el-pagination>
+      </div>
     </el-card>
 
-    <!-- 修改添加用户弹窗的表单 -->
-    <el-dialog v-model="addDialogVisible" title="添加用户" width="500px">
-      <el-form :model="addForm" label-width="100px" :rules="rules" ref="addFormRef">
-        <el-form-item label="用户名称" prop="username">
-          <el-input v-model="addForm.username"></el-input>
-        </el-form-item>
-        <el-form-item label="昵称">
-          <el-input v-model="addForm.nickname"></el-input>
-        </el-form-item>
-        <el-form-item label="手机号码" prop="phone">
-          <el-input v-model="addForm.phone"></el-input>
-        </el-form-item>
-        <el-form-item label="邮箱">
-          <el-input v-model="addForm.email"></el-input>
-        </el-form-item>
-        <el-form-item label="公司ID">
-          <el-input-number v-model="addForm.company_id" :min="1"></el-input-number>
-        </el-form-item>
-        <el-form-item label="性别">
-          <el-select v-model="addForm.gender">
-            <el-option label="男" :value="1"></el-option>
-            <el-option label="女" :value="2"></el-option>
-            <el-option label="未知" :value="0"></el-option>
-          </el-select>
-        </el-form-item>
-        <el-form-item label="密码" prop="password">
-          <el-input v-model="addForm.password" type="password" show-password></el-input>
-        </el-form-item>
-        <el-form-item label="状态">
-          <el-select v-model="addForm.status">
-            <el-option label="启用" :value="0"></el-option> 
-            <el-option label="禁用" :value="1"></el-option>   
-          </el-select>
-        </el-form-item>
+    <!-- 添加用户弹窗 -->
+    <el-dialog 
+      v-model="addDialogVisible" 
+      title="添加用户" 
+      width="600px"
+      class="user-dialog"
+    >
+      <el-form 
+        :model="addForm" 
+        label-width="100px" 
+        :rules="rules" 
+        ref="addFormRef"
+        label-position="left"
+      >
+        <el-row :gutter="20">
+          <el-col :span="12">
+            <el-form-item label="用户名称" prop="username">
+              <el-input v-model="addForm.username" placeholder="请输入用户名称"></el-input>
+            </el-form-item>
+          </el-col>
+          <el-col :span="12">
+            <el-form-item label="昵称">
+              <el-input v-model="addForm.nickname" placeholder="请输入昵称"></el-input>
+            </el-form-item>
+          </el-col>
+        </el-row>
+        
+        <el-row :gutter="20">
+          <el-col :span="12">
+            <el-form-item label="手机号码" prop="phone">
+              <el-input v-model="addForm.phone" placeholder="请输入手机号码"></el-input>
+            </el-form-item>
+          </el-col>
+          <el-col :span="12">
+            <el-form-item label="邮箱">
+              <el-input v-model="addForm.email" placeholder="请输入邮箱"></el-input>
+            </el-form-item>
+          </el-col>
+        </el-row>
+        
+        <el-row :gutter="20">
+          <el-col :span="12">
+            <el-form-item label="公司ID">
+              <el-input-number v-model="addForm.company_id" :min="1" controls-position="right"></el-input-number>
+            </el-form-item>
+          </el-col>
+          <el-col :span="12">
+            <el-form-item label="性别">
+              <el-select v-model="addForm.gender" placeholder="请选择性别" style="width:100%">
+                <el-option label="男" :value="1"></el-option>
+                <el-option label="女" :value="2"></el-option>
+                <el-option label="未知" :value="0"></el-option>
+              </el-select>
+            </el-form-item>
+          </el-col>
+        </el-row>
+        
+        <el-row :gutter="20">
+          <el-col :span="12">
+            <el-form-item label="密码" prop="password">
+              <el-input v-model="addForm.password" type="password" show-password placeholder="请输入密码"></el-input>
+            </el-form-item>
+          </el-col>
+          <el-col :span="12">
+            <el-form-item label="状态">
+              <el-select v-model="addForm.status" placeholder="请选择状态" style="width:100%">
+                <el-option label="启用" :value="0"></el-option> 
+                <el-option label="禁用" :value="1"></el-option>   
+              </el-select>
+            </el-form-item>
+          </el-col>
+        </el-row>
+        
         <el-form-item label="角色">
-          <el-select v-model="addForm.isSuper">
+          <el-select v-model="addForm.isSuper" placeholder="请选择角色" style="width:100%">
             <el-option label="超级管理员" :value="1"></el-option>
             <el-option label="普通用户" :value="0"></el-option>
           </el-select>
         </el-form-item>
       </el-form>
       <template #footer>
-        <el-button @click="addDialogVisible = false">取消</el-button>
-        <el-button type="primary" @click="handleAddUser">保存</el-button>
+        <span class="dialog-footer">
+          <el-button @click="addDialogVisible = false">取消</el-button>
+          <el-button type="primary" @click="handleAddUser">保存</el-button>
+        </span>
       </template>
     </el-dialog>
 
-    <!-- 修改编辑用户弹窗 -->
-    <el-dialog v-model="editDialogVisible" title="编辑用户" width="500px">
-      <el-form :model="editForm" label-width="100px" ref="editFormRef">
-        <el-form-item label="用户ID">
-          <el-input v-model="editForm.user_id" disabled></el-input>
-        </el-form-item>
-        <el-form-item label="公司ID">
-          <el-input-number v-model="editForm.company_id" :min="1"></el-input-number>
-        </el-form-item>
-        <el-form-item label="用户名" prop="username">
-          <el-input v-model="editForm.username"></el-input>
-        </el-form-item>
-        <el-form-item label="昵称">
-          <el-input v-model="editForm.nickname"></el-input>
-        </el-form-item>
-        <el-form-item label="手机号码">
-          <el-input v-model="editForm.phone"></el-input>
-        </el-form-item>
-        <el-form-item label="邮箱">
-          <el-input v-model="editForm.email"></el-input>
-        </el-form-item>
-        <el-form-item label="性别">
-          <el-select v-model="editForm.gender">
-            <el-option label="男" :value="1"></el-option>
-            <el-option label="女" :value="2"></el-option>
-            <el-option label="未知" :value="0"></el-option>
-          </el-select>
-        </el-form-item>
-        <el-form-item label="状态">
-          <el-select v-model="editForm.status">
-            <el-option label="启用" :value="0"></el-option>
-            <el-option label="禁用" :value="1"></el-option>
-          </el-select>
-        </el-form-item>
+    <!-- 编辑用户弹窗 -->
+    <el-dialog 
+      v-model="editDialogVisible" 
+      title="编辑用户" 
+      width="600px"
+      class="user-dialog"
+    >
+      <el-form 
+        :model="editForm" 
+        label-width="100px" 
+        ref="editFormRef"
+        label-position="left"
+      >
+        <el-row :gutter="20">
+          <el-col :span="12">
+            <el-form-item label="用户ID">
+              <el-input v-model="editForm.user_id" disabled></el-input>
+            </el-form-item>
+          </el-col>
+          <el-col :span="12">
+            <el-form-item label="公司ID">
+              <el-input-number v-model="editForm.company_id" :min="1" controls-position="right"></el-input-number>
+            </el-form-item>
+          </el-col>
+        </el-row>
+        
+        <el-row :gutter="20">
+          <el-col :span="12">
+            <el-form-item label="用户名" prop="username">
+              <el-input v-model="editForm.username" placeholder="请输入用户名"></el-input>
+            </el-form-item>
+          </el-col>
+          <el-col :span="12">
+            <el-form-item label="昵称">
+              <el-input v-model="editForm.nickname" placeholder="请输入昵称"></el-input>
+            </el-form-item>
+          </el-col>
+        </el-row>
+        
+        <el-row :gutter="20">
+          <el-col :span="12">
+            <el-form-item label="手机号码">
+              <el-input v-model="editForm.phone" placeholder="请输入手机号码"></el-input>
+            </el-form-item>
+          </el-col>
+          <el-col :span="12">
+            <el-form-item label="邮箱">
+              <el-input v-model="editForm.email" placeholder="请输入邮箱"></el-input>
+            </el-form-item>
+          </el-col>
+        </el-row>
+        
+        <el-row :gutter="20">
+          <el-col :span="12">
+            <el-form-item label="性别">
+              <el-select v-model="editForm.gender" placeholder="请选择性别" style="width:100%">
+                <el-option label="男" :value="1"></el-option>
+                <el-option label="女" :value="2"></el-option>
+                <el-option label="未知" :value="0"></el-option>
+              </el-select>
+            </el-form-item>
+          </el-col>
+          <el-col :span="12">
+            <el-form-item label="状态">
+              <el-select v-model="editForm.status" placeholder="请选择状态" style="width:100%">
+                <el-option label="启用" :value="0"></el-option>
+                <el-option label="禁用" :value="1"></el-option>
+              </el-select>
+            </el-form-item>
+          </el-col>
+        </el-row>
+        
         <el-form-item label="角色">
-          <el-select v-model="editForm.is_super">
+          <el-select v-model="editForm.is_super" placeholder="请选择角色" style="width:100%">
             <el-option label="超级管理员" :value="1"></el-option>
             <el-option label="普通用户" :value="0"></el-option>
           </el-select>
         </el-form-item>
       </el-form>
       <template #footer>
-        <el-button @click="editDialogVisible = false">取消</el-button>
-        <el-button type="primary" @click="handleEditUser">保存</el-button>
+        <span class="dialog-footer">
+          <el-button @click="editDialogVisible = false">取消</el-button>
+          <el-button type="primary" @click="handleEditUser">保存</el-button>
+        </span>
       </template>
     </el-dialog>
   </div>
@@ -509,6 +619,65 @@
 
 <style scoped>
   .admin-user-management {
-    padding: 1px;
+    padding: 20px;
+  }
+
+  .box-card {
+    border-radius: 4px;
+  }
+
+  .search-form {
+    margin-bottom: 20px;
+  }
+
+  .action-buttons {
+    display: flex;
+    align-items: center;
+    height: 100%;
+  }
+
+  .pagination-center {
+    margin-top: 20px;
+    display: flex;
+    justify-content: center;
+  }
+
+  .el-table {
+    margin-top: 20px;
+  }
+
+  .el-table :deep(.cell) {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .el-table :deep(th) {
+    background-color: #f5f7fa;
+  }
+
+  .el-button + .el-button {
+    margin-left: 8px;
+  }
+
+  .search-form {
+  margin-bottom: 20px;
+  padding: 15px;
+  background-color: #f8f8f8;
+  border-radius: 4px;
+  }
+
+  .compact-form-item {
+    margin-bottom: 0;
+  }
+
+  .compact-form-item :deep(.el-form-item__label) {
+    padding-right: 8px;
+    width: 70px;
+    text-align: right;
+  }
+
+  .compact-form-item :deep(.el-form-item__content) {
+    margin-left: 70px;
   }
 </style>
