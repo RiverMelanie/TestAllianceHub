@@ -17,15 +17,7 @@
       <template #default="scope">
         <div class="operation-buttons">
         <el-button link type="primary" @click="reviewDynamic(scope.row)">审核动态</el-button>
-        <el-upload
-        class="upload-btn"
-        :action="`http://localhost:8080/upload`"
-        :on-success="(res:any) => handleUploadSuccess(res, scope.row)"
-        :file-list="fileList"
-        :auto-upload="true"
-        style="margin-left: 20px"
-        >
-      </el-upload>
+        
         </div>
       </template>
     </el-table-column>
@@ -68,12 +60,14 @@
     placeholder="Please input"
     clearable
     /><br>
-    审核结果:<el-input
-    v-model="upReviewResult"
-    style="width: 240px"
-    placeholder="Please input"
-    clearable
-    /><br>
+    审核结果:<el-select 
+              v-model="upReviewResult" 
+              style="width: 240px" 
+              clearable 
+            >
+              <el-option label="0" value="0"></el-option>
+              <el-option label="1" value="1"></el-option>
+            </el-select><br>
     <el-button type="primary" @click="updtreviewDynamic">确认审核</el-button>
      </el-dialog>
      <!-- 分页组件 -->
@@ -98,13 +92,13 @@ import { useUserStore } from '@/stores/user';
 import { onMounted } from 'vue';
 
 let router=useRouter()
-const upReviewrID=ref('')
+const upReviewrID=ref()
 const upTitle=ref('')
 const upNewsImage=ref('')
 const upContent=ref('')
 const upNewsSummary=ref('')
 const upAuthor=ref('')
-const upReviewResult=ref('')
+const upReviewResult=ref()
 let createTime=ref('')
 let auditStatus=ref('')
 let updialogVisible=ref(false)
