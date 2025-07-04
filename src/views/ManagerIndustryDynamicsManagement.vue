@@ -1,5 +1,6 @@
 <template>
     <!-- 搜索表单 -->
+  <div class="search-container">
     <el-form :model="searchDynamics" inline label-width="80px">
       <el-form-item label="标题">
         <el-input v-model="searchDynamics.title" placeholder="请输入标题"></el-input>
@@ -17,42 +18,44 @@
         <el-button type="primary" @click="reviewDynamic">审核行业动态</el-button>
       </el-form-item>
     </el-form>
-
-<el-table :data="dynamics" style="width: 100%" table-layout: fixed>
-    <el-table-column prop="dynamicId" label="动态Id" width="180" />
-    <el-table-column prop="publisherId" label="发布者Id" width="180" />
-    <el-table-column prop="title" label="标题" width="180" />
-    <el-table-column prop="content" label="内容" width="180" />
-    <el-table-column prop="summary" label="摘要" width="180" />
-    <el-table-column prop="author" label="作者" width="180" />
-    <el-table-column prop="imageUrl" label="图片链接" width="180">
-      <template #default="scope">
-      <a :href="scope.row.imageUrl" target="_blank">
-      {{ scope.row.imageUrl }}
-      </a>
-     </template>
-    </el-table-column>
-    <el-table-column prop="createTime" label="创建时间" width="180" />
-    <el-table-column prop="auditStatus" label="审核状态" width="180" />
-    <el-table-column label="操作" min-width="200">
-      <template #default="scope">
-        <div class="operation-buttons">
-        <el-button link type="primary" @click="delDynamic(scope.row.dynamicId)" size="small">删除</el-button>
-        <el-button link type="primary" @click="updt(scope.row)">修改</el-button>
-        <el-upload
-        class="upload-btn"
-        :action="`http://localhost:8080/upload?id=${scope.row.id}&title=${scope.row.title}&author=${scope.row.author}&publisher=${scope.row.publisher}&category=${scope.row.category}&status=${scope.row.status}`"
-        :on-success="(res:any) => handleUploadSuccess(res, scope.row)"
-        :file-list="fileList"
-        :auto-upload="true"
-        style="margin-left: 20px"
-        >
-      </el-upload>
-        </div>
+  </div>
+<div class="table-wrapper" >
+  <el-table :data="dynamics" style="width: 100%"  align="center" table-layout: fixed>
+      <el-table-column prop="dynamicId" label="动态Id" width="180" />
+      <el-table-column prop="publisherId" label="发布者Id" width="180" />
+      <el-table-column prop="title" label="标题" width="180" />
+      <el-table-column prop="content" label="内容" width="180" />
+      <el-table-column prop="summary" label="摘要" width="180" />
+      <el-table-column prop="author" label="作者" width="180" />
+      <el-table-column prop="imageUrl" label="图片链接" width="180">
+        <template #default="scope">
+        <a :href="scope.row.imageUrl" target="_blank">
+        {{ scope.row.imageUrl }}
+        </a>
       </template>
-    </el-table-column>
-</el-table>
-
+      </el-table-column>
+      <el-table-column prop="createTime" label="创建时间" width="180" />
+      <el-table-column prop="auditStatus" label="审核状态" width="180" />
+      <el-table-column label="操作" min-width="200">
+        <template #default="scope">
+          <div class="operation-buttons">
+          <el-button link type="primary" @click="delDynamic(scope.row.dynamicId)" size="small">删除</el-button>
+          <el-button link type="primary" @click="updt(scope.row)">修改</el-button>
+          <!-- 关键修改：传递 dynamicId 参数 -->
+        <el-upload
+          class="upload-btn"
+          :action="`http://localhost:8080/Managerupload?dynamicId=${scope.row.dynamicId}&publisherId=${scope.row.publisherId}&title=${scope.row.title}&content=${scope.row.content}&summary=${scope.row.summary}&author=${scope.row.author}&auditStatus=${scope.row.auditStatus}`"
+          :on-success="(res:any) => handleUploadSuccess1(res, scope.row)"
+          :file-list="fileList"
+          :auto-upload="true"
+          style="margin-left: 20px"
+        >
+        </el-upload>
+        </div>
+        </template>
+      </el-table-column>
+  </el-table>
+</div>
  <el-dialog v-model="dialogVisible" title="添加行业动态" width="400">
    发布者Id:<el-input
     v-model="publisherId"
@@ -84,12 +87,21 @@
     placeholder="Please input"
     clearable
     /><br>
-    图片链接:<el-input
-    v-model="imageUrl"
-    style="width: 240px"
-    placeholder="Please input"
-    clearable
-    /><br>
+     <el-upload
+      class="upload-section"
+      action="http://localhost:8080/upload" 
+      :on-success="handleUploadSuccess"     
+      :file-list="fileList"                  
+      :auto-upload="true"                    
+      :limit="1"                            
+    >
+      <el-button type="primary">选择并上传图片</el-button>
+    </el-upload>
+    
+ 
+    <div v-if="imageUrl" class="uploaded-preview">
+      <img :src="imageUrl" alt="预览" style="max-width: 200px; margin-top: 10px;">
+    </div>
     <el-button type="primary" @click="addDynamic">添加行业动态</el-button>
      </el-dialog>
 
@@ -124,12 +136,21 @@
     placeholder="Please input"
     clearable
     /><br>
-    图片链接:<el-input
-    v-model="upimageUrl"
-    style="width: 240px"
-    placeholder="Please input"
-    clearable
-    /><br>
+    <el-upload
+      class="upload-section"
+      action="http://localhost:8080/upload" 
+      :on-success="handleUploadSuccess"     
+      :file-list="fileList"                  
+      :auto-upload="true"                    
+      :limit="1"                            
+    >
+      <el-button type="primary">选择并上传图片</el-button>
+    </el-upload>
+    
+ 
+    <div v-if="imageUrl" class="uploaded-preview">
+      <img :src="imageUrl" alt="预览" style="max-width: 200px; margin-top: 10px;">
+    </div>
     <el-button type="primary" @click="updtDynamic">确认修改</el-button>
      </el-dialog>
      <!-- 分页组件 -->
@@ -151,7 +172,8 @@ import { ElMessage } from 'element-plus'
 import {useRouter} from 'vue-router'
 import { useUserStore } from '@/stores/user'; 
 import { onMounted } from 'vue';
-
+import type { UploadFile } from 'element-plus';
+const fileList = ref<UploadFile[]>([]); // 存储已选文件
 let router=useRouter()
 let publisherId=ref('')
 let title=ref('')
@@ -189,7 +211,14 @@ const searchDynamics = ref({        // 查询条件
   author: ''
 });
 const store = useUserStore(); 
-const fileList = ref([]);
+
+// 上传成功回调：将后端返回的 URL 绑定到 imageUrl
+
+const handleUploadSuccess = (response: any) => {
+  console.log("pic:")
+  console.log(response)
+  imageUrl.value = response.url; // 后端需返回 { url: "图片访问地址" }
+};
 
 const fetchData = async (params = {}) => {
   loading.value = true;
@@ -216,15 +245,12 @@ const fetchData = async (params = {}) => {
 };
 
 // 文件上传成功回调
-const handleUploadSuccess = (response: any,row:any) => {
+const handleUploadSuccess1 = (response: any,row:any) => {
   if (response.code === 200) {
-    ElMessage.success('封面上传成功！');
-    // 可在此调用接口，将 response.data.url 关联到图书信息
-    console.log('图片地址：', response.data);
-    row.pic=response.data;
-    
+    ElMessage.success('上传成功！');
+    imageUrl.value = response.url; 
   } else {
-    ElMessage.error('封面上传失败，请重试！');
+    ElMessage.error('上传失败，请重试！');
   }
 };
 
@@ -259,25 +285,30 @@ function addDynamic(){
         Content:content.value,   
         NewsSummary:summary.value,
         Author:author.value,
-        ReviewResult:0
+        auditStatus:0
     }
     //先往审核表里面添加
     axios.post("http://localhost:8080/addreviewrecord",reviewobj)
-    axios.post("http://localhost:8080/addDynamic",obj)
     .then(res=>{
         if(res.data>0){
-            ElMessage.success("添加成功，待审核通过后即刻发布")
-            dialogVisible.value=false
+            ElMessage.success("已成功添加到审核表")
+            axios.post("http://localhost:8080/addDynamic",obj)
+    .then(res=>{
+    if(res.data>0){
+                  ElMessage.success("添加成功，待审核通过后即刻发布")
+                   dialogVisible.value=false
+                    search();
+                        }    
+                    })
             search();
-        }
-        
+        } 
     })
+    
+                    
+    
     
     
 }
-
-
-
 //更新动态
 function updt(row:any){
     updialogVisible.value=true
@@ -332,10 +363,61 @@ function delDynamic(id:number){
 </script>
 
 <style scoped>
-/* 让按钮横向排列 */
+.search-container {
+  margin-bottom: 20px;
+  padding: 20px;
+  background: #fff;
+  border-radius: 8px;
+  box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
+}
+.table-wrapper {
+  background: #fff;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
+}
+/* 操作列按钮容器基础布局 */
 .operation-buttons {
   display: flex;
-  gap: 8px; /* 按钮之间的间距，可调整 */
-  align-items: center; /* 垂直居中 */
+  gap: 12px; /* 增大间距，避免拥挤 */
+  align-items: center;
+  flex-wrap: wrap; /* 适配小屏幕 */
+}
+
+/* 优化 Link 按钮样式（删除/修改） */
+.operation-buttons .el-button--link {
+  color: #007bff;          /* 主色调，匹配系统风格 */
+  text-decoration: none;   /* 去除默认下划线 */
+  padding: 6px 12px;       /* 增大点击区域 */
+  border-radius: 4px;      /* 轻微圆角，增强质感 */
+  transition: all 0.3s ease;
+
+  /* hover 交互增强 */
+  &:hover {
+    color: #0056b3;         /* 加深主色，突出反馈 */
+    text-decoration: underline; /*  hover 时显示下划线 */
+    background-color: #f1f5ff; /* 浅灰背景，区分点击态 */
+    transform: translateY(-1px); /* 轻微上移，模拟物理交互 */
+  }
+
+  /* 激活态（点击时） */
+  &:active {
+    transform: translateY(0);
+    background-color: #e3f0ff;
+  }
+}
+
+/* 上传按钮单独优化（可选，保持简洁） */
+.upload-btn .el-button {
+  padding: 4px 10px; 
+  font-size: 13px;
+  background: #f5f7fa;
+  border: 1px solid #d9d9d9;
+  color: #495057;
+  
+  &:hover {
+    background: #e9ecef;
+    border-color: #c0c4cc;
+  }
 }
 </style>
