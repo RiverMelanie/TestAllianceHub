@@ -78,7 +78,6 @@
       <el-button type="primary">选择并上传图片</el-button>
     </el-upload>
     
- 
     <div v-if="imageUrl" class="uploaded-preview">
       <img :src="imageUrl" alt="预览" style="max-width: 200px; margin-top: 10px;">
     </div>
