@@ -182,6 +182,8 @@ function addDynamic(){
         imageUrl:imageUrl.value,   
         auditStatus:0
     }
+
+    
     let reviewobj={
         ReviewerID:1,
         Title:title.value,
