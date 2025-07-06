@@ -65,6 +65,12 @@ const router = createRouter({
           name: 'ManagerMeetingManagement',
           component: ()=>import('../views/ManagerMeetingManagement.vue'),
         },
+        {
+          path: '/MobileUserBehaviorAnalysis',
+          name: 'MobileUserBehaviorAnalysis',
+          component: ()=>import('../views/MobileUserBehaviorAnalysis.vue'),
+        },
+        
       ]
     },
     {
