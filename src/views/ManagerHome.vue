@@ -33,6 +33,11 @@
               <el-icon><Calendar /></el-icon>
               <span>会议管理</span>
             </el-menu-item>
+
+			 <el-menu-item index="/MobileUserBehaviorAnalysis" class="menu-item">
+              <el-icon><PieChart /></el-icon>
+              <span>用户行为分析</span>
+            </el-menu-item>
           </el-menu>
         </el-aside>
         <el-main class="app-main">
