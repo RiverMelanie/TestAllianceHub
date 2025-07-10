@@ -97,7 +97,6 @@ const fetchIndustryDynamics = async () => {
     ElMessage.warning('请选择开始和结束日期');
     return;
   }
-  
   // 将日期转换为 UTC 时间的 ISO 字符串（如 "2025-07-01T00:00:00Z"）
   const start = startDate.value.toUTCString(); 
   const end = endDate.value.toUTCString(); 

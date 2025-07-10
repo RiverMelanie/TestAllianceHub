@@ -33,6 +33,7 @@ const router = createRouter({
           name: 'MeetingManagement',
           component: ()=>import('../views/MeetingManagement.vue'),
         },
+        
       ]
     },
     {
