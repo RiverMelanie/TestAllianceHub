@@ -93,31 +93,33 @@ const currentChartType = ref<ChartType>('pie');
 
 // 获取行业动态
 const fetchIndustryDynamics = async () => {
-  if (!startDate.value || !endDate.value) {
-    ElMessage.warning('请选择开始和结束日期');
-    return;
-  }
-  // 将日期转换为 UTC 时间的 ISO 字符串（如 "2025-07-01T00:00:00Z"）
-  const start = startDate.value.toUTCString(); 
-  const end = endDate.value.toUTCString(); 
-  console.log('前端传递的 UTC 日期:', { startDate: start, endDate: end });
-  
-  industryLoading.value = true;
-  try {
-    const response = await axios.get('http://localhost:8080/api/dynamics/mobiletopClicked', {
-      params: { startDate: start, endDate: end }
-    });
-    industryTableData.value = response.data.map((item: any) => ({
-      dynamicTitle: item.title, 
-      clickCount: item.clickCount
-    }));
-  } catch (error) {
-    ElMessage.error('获取行业动态数据失败');
-    console.error(error);
-  } finally {
-    industryLoading.value = false;
-  }
+  if (!startDate.value || !endDate.value) {
+    ElMessage.warning('请选择开始和结束日期');
+    return;
+  }
+
+  const start = startDate.value.toISOString().split('T')[0]; // "2025-07-01"
+  const end = endDate.value.toISOString().split('T')[0];     // "2025-07-09"
+  console.log('前端传递的 ISO 日期:', { startDate: start, endDate: end });
+
+  industryLoading.value = true;
+  try {
+    const response = await axios.get('http://localhost:8080/mobiletopClicked', {
+      params: { startDate: start, endDate: end }
+    });
+
+    industryTableData.value = response.data.map((item: any) => ({
+      dynamicTitle: item.title,
+      clickCount: item.clickCount
+    }));
+  } catch (error) {
+    ElMessage.error('获取行业动态数据失败');
+    console.error(error);
+  } finally {
+    industryLoading.value = false;
+  }
 };
+
 // 获取会议数据
 const fetchMeetingData = async () => {
   try {
